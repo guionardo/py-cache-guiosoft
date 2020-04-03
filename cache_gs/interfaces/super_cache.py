@@ -1,43 +1,52 @@
-import logging
 from hashlib import sha1
+
+from cache_gs.cache_classes.cache_data import CacheData
+from cache_gs.utils.logging import get_logger
 
 
 class SuperCache:
-    LOGGER = logging.getLogger('cache_gs')
-
-    def __init__(self, string_connection: str):
+    def __init__(self, string_connection: str, **extra_args):
         if not isinstance(string_connection, str) or not string_connection:
             raise AttributeError(
                 "bad string connection for {0}".format(type(self.__class__)))
         self._string_connection = string_connection
+        self._extra_args = extra_args
         self.setup()
 
     def setup(self):
         raise NotImplementedError
 
-    def get_value(self, section: str, key: str, default=None) -> str:
+    def _get_value(self, section: str, key: str, default=None) -> CacheData:
         raise NotImplementedError
+
+    def _set_value(self, data: CacheData) -> bool:
+        raise NotImplementedError
+
+    def _delete_value(self, data: CacheData) -> bool:
+        raise NotImplementedError
+
+    def get_value(self, section: str, key: str, default=None) -> str:
+        data = self._get_value(section, key, default)
+        if not data or data.expired:
+            return default
+
+        return data.value
 
     def set_value(self, section: str, key: str, value: str, expires_in: int = 0) -> bool:
-        raise NotImplementedError
+        data = CacheData(section, key, value, expires_in)
+        return self._set_value(data)
 
     def delete_value(self, section: str, key: str) -> bool:
-        raise NotImplementedError
+        data = CacheData(section, key, None, 0)
+        return self._delete_value(data)
 
     def purge_expired(self) -> int:
         raise NotImplementedError
 
-    def _section_key_hash(self, section: str, key: str) -> str:
-        sk = ("_" if not isinstance(section, str) or not section else section)+"." +\
-            ("_" if not isinstance(key, str) or not key else key)
-        hash = sha1(sk.encode('utf-8')).hexdigest()
-        self.log_debug('HASH("%s", "%s") = %s', section, key, hash)
-        return hash
-
     @classmethod
-    def log_debug(cls, text, *args, **kwargs):
-        cls.LOGGER.debug(text, *args, **kwargs)
+    def log_debug(cls, text, *args, **kwargs):        
+        get_logger().debug(text, *args, **kwargs)
 
     @classmethod
     def log_info(cls, text, *args, **kwargs):
-        cls.LOGGER.info(text, *args, **kwargs)
+        get_logger().info(text, *args, **kwargs)

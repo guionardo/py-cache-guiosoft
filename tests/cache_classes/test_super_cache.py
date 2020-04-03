@@ -17,8 +17,3 @@ class TestSuperCache(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             SuperCache('.cache')
 
-    @patch("cache_gs.interfaces.super_cache.SuperCache.setup", Mock())
-    def test_hash(self):
-        sc = SuperCache(".cache")
-        hash = sc._section_key_hash('section', 'key')
-        self.assertIsNotNone(hash)

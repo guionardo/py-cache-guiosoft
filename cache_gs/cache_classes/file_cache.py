@@ -1,5 +1,11 @@
-from cache_gs.interfaces.super_cache import SuperCache
 import os
+from glob import glob
+
+from cache_gs.cache_classes.cache_data import CacheData
+from cache_gs.cache_classes.cache_data_file import CacheDataFile
+from cache_gs.interfaces.super_cache import SuperCache
+from cache_gs.utils.timestamp import (base64_to_int, int_to_base64,
+                                      section_key_hash)
 
 
 class FileCache(SuperCache):
@@ -14,18 +20,68 @@ class FileCache(SuperCache):
                 'Creating cache folder [%s]', self._string_connection)
             os.makedirs(self._string_connection)
 
-    def get_value(self, section, key, default=None):
-        return super().get_value(section, key, default=default)
+    def _get_value(self, section, key, default=None):
+        data = CacheData(section, key, None, 0)
+        filename = self._file_name(data)
+        cdf = CacheDataFile()
+        if cdf.load(filename):
+            return cdf.data
 
-    def set_value(self, section, key, value, expires_in=0):
-        return super().set_value(section, key, value, expires_in=expires_in)
+        return default
+
+    def _set_value(self, data):
+        filename = self._file_name(data, True)
+        cdf = CacheDataFile(cache_data=data)
+        return cdf.save(filename)
+
+    def _delete_value(self, data):
+        filename = self._file_name(data)
+        if os.path.isfile(filename):
+            os.unlink(filename)
 
     def purge_expired(self):
-        return super().purge_expired()
+        subfolders = [
+            folder
+            for folder in glob(os.path.join(self._string_connection, '*'))
+            if os.path.isdir(folder)]
+        expired_count = 0
+        for subfolder in subfolders:
+            subsubfolders = [
+                folder
+                for folder in glob(os.path.join(subfolder, '*'))
+                if os.path.isdir(folder)
+            ]
+            for subsubfolder in subsubfolders:
+                expired_count += self._purge_expired_folder(subsubfolder)
 
-    def _file_name(self, section: str, key: str, create_folder: bool):
-        filename = self._section_key_hash(section, key)
-        dirname = os.path.join(self._string_connection, filename[:2])
+            self._remove_empty_folder(subfolder)
+
+        return expired_count
+
+    def _purge_expired_folder(self, folder):
+        cache_files = [
+            file
+            for file in glob(os.path.join(folder, '*'))
+            if os.path.isfile(file)
+        ]
+        expired_count = 0
+        for cache_file in cache_files:
+            cdf = CacheDataFile(cache_file)
+            if not cdf.data or cdf.data.expired:
+                expired_count += 1
+
+        self._remove_empty_folder(folder)
+
+        return expired_count
+
+    def _remove_empty_folder(self, folder):
+        if len(glob(os.path.join(folder, '*'))) == 0:
+            os.rmdir(folder)
+
+    def _file_name(self, data: CacheData, create_folder: bool):
+        filename = section_key_hash(data.section, data.key)
+        dirname = os.path.join(self._string_connection,
+                               filename[:2], filename[2:4])
         if create_folder and not os.path.isdir(dirname):
             self.log_debug('Creating cache folder [%s]', dirname)
             os.makedirs(dirname)
