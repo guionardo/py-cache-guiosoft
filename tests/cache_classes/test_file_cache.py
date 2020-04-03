@@ -1,14 +1,19 @@
+import os
 import time
 import unittest
 
-from cache_gs.cache_classes.file_cache import FileCache
 from cache_gs import CacheGS
+from cache_gs.cache_classes.file_cache import FileCache
 
 
 class TestFileCache(unittest.TestCase):
 
     def setUp(self):
-        self.file_cache = CacheGS('.cache')
+        cache_folder = '.cache'
+        if not os.path.isdir((cache_folder)):
+            os.makedirs(cache_folder)
+
+        self.file_cache = CacheGS(cache_folder)
 
     def test_purge(self):
         self.assertTrue(self.file_cache.set_value(
