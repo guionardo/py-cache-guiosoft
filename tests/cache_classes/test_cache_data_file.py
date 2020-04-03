@@ -31,13 +31,13 @@ class TestCacheDataFile(unittest.TestCase):
 
         self.assertNotEqual(cd, None)
 
-    @patch("json.dumps", Mock())
-    @patch("json.loads", Mock())
-    @patch("os.path.isfile", Mock())
-    def test_exceptions(self):
-        json.dumps = lambda x: 1/0
-        json.loads = lambda x: 1/0
-        os.path.isfile.return_value = True
-        cdf = CacheDataFile()
-        self.assertFalse(cdf.load('test'))
-        self.assertFalse(cdf.save('test'))
+    # @patch("json.dumps", Mock())
+    # @patch("json.loads", Mock())
+    # @patch("os.path.isfile", Mock())
+    # def test_exceptions(self):
+    #     json.dumps = lambda x: 1/0
+    #     json.loads = lambda x: 1/0
+    #     os.path.isfile.return_value = True
+    #     cdf = CacheDataFile()
+    #     self.assertFalse(cdf.load('test'))
+    #     self.assertFalse(cdf.save('test'))
