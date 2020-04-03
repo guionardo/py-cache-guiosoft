@@ -9,8 +9,8 @@ class CacheData:
             section, str) or not section else section
         key = '_' if not isinstance(key, str) or not key else key
         value = str(value)
-        expires_in = 0 if not isinstance(
-            expires_in, int) or expires_in < 0 else expires_in
+        expires_in = 0 if not (isinstance(
+            expires_in, int) or isinstance(expires_in, float)) or expires_in < 0 else expires_in
 
         self._section = section
         self._key = key
@@ -39,3 +39,11 @@ class CacheData:
 
     @property
     def expired(self) -> bool: return time() > self._expires_in > 0
+
+    def __eq__(self, value):
+        if isinstance(value, self.__class__):
+            return self.section == value.section and \
+                self.key == value.key and \
+                self.value == value.value and \
+                self.expires_in == value.expires_in
+        return False

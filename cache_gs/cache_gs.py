@@ -23,3 +23,9 @@ class CacheGS(SuperCache):
 
     def set_value(self, section: str, key: str, value: str, expires_in: int = 0) -> bool:
         return self._cache.set_value(section, key, value, expires_in)
+
+    def delete_value(self, section: str, key: str) -> bool:
+        return self._cache.delete_value(section, key)
+
+    def purge_expired(self):
+        return self._cache.purge_expired()
