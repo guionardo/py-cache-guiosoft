@@ -4,16 +4,22 @@ import unittest
 
 from cache_gs import CacheGS
 from cache_gs.cache_classes.file_cache import FileCache
+from cache_gs.utils.filesystem import remove_tree
 
 
 class TestFileCache(unittest.TestCase):
 
     def setUp(self):
-        cache_folder = 'path://.cache'
-        if not os.path.isdir((cache_folder)):
-            os.makedirs(cache_folder)
+        self.cache_folder = '.cache'
+        self.file_cache = CacheGS('path://'+self.cache_folder)
 
-        self.file_cache = CacheGS(cache_folder)
+    def tearDown(self):
+        if os.path.isdir(self.cache_folder):
+            remove_tree(self.cache_folder)
+
+    def test_setup_error_folder(self):
+        with self.assertRaises(Exception):
+            FileCache('path://.cache_/error')
 
     def test_purge(self):
         self.assertTrue(self.file_cache.set_value(

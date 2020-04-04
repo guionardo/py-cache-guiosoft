@@ -1,25 +1,21 @@
-import unittest
 import os
+import unittest
 
 from cache_gs import CacheGS
 from cache_gs.utils.filesystem import remove_tree
 
 
-class TestRealSQLiteCache(unittest.TestCase):
+class TestRealFileCache(unittest.TestCase):
 
     def setUp(self):
-
-        self.cache_file = '.cache'
-        if not os.path.isdir(self.cache_file):
-            os.mkdir(self.cache_file)
-
-        self.cache = CacheGS('sqlite://'+self.cache_file)
+        self.cache_path = ".cache_dir"
+        self.cache = CacheGS('path://'+self.cache_path)
 
     def tearDown(self):
-        del(self.cache)
-        remove_tree(self.cache_file)
+        if os.path.isdir(self.cache_path):
+            remove_tree(self.cache_path)
 
-    def test_init(self):
+    def test_file_cache(self):
         self.assertIsInstance(self.cache, CacheGS)
 
     def test_get_set_delete(self):
