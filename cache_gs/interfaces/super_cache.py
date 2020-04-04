@@ -44,9 +44,17 @@ class SuperCache:
         raise NotImplementedError
 
     @classmethod
-    def log_debug(cls, text, *args, **kwargs):        
+    def log_debug(cls, text, *args, **kwargs):
         get_logger().debug(text, *args, **kwargs)
 
     @classmethod
     def log_info(cls, text, *args, **kwargs):
         get_logger().info(text, *args, **kwargs)
+
+    @classmethod
+    def log_error(cls, text, *args, **kwargs):
+        get_logger().error(text, *args, **kwargs)
+
+
+class CacheException(Exception):
+    pass

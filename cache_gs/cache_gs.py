@@ -2,21 +2,57 @@ import os
 
 from cache_gs.cache_classes.file_cache import FileCache
 from cache_gs.cache_classes.redis_cache import RedisCache
-from cache_gs.interfaces.super_cache import SuperCache
+from cache_gs.cache_classes.sqlite_cache import SQLiteCache
+from cache_gs.interfaces.super_cache import CacheException, SuperCache
 
 
 class CacheGS(SuperCache):
+    """
+    Create your cache of section, key, values
+
+    Using filesystem:
+
+    cache = CacheGS('path://directory_for_cache_storage')
+
+    Using sqlite
+
+    cache = CacheGS('sqlite://directory_or_file_for_storage')
+
+    Using redis:
+
+    cache = CacheGS('redis://host:6379?arg=value&arg2=value2')
+
+    args: 
+        username
+        password
+        client_name
+        encoding
+        encoding_errors
+        charset
+        db
+        health_check_interval
+
+        More informations on args for redis: https://github.com/andymccurdy/redis-py
+    """
+
+    CACHE_CLASSES = {
+        'path': FileCache,
+        'redis': RedisCache,
+        'sqlite': SQLiteCache
+    }
 
     def __init__(self, string_connection: str):
         if not isinstance(string_connection, str) or not string_connection:
             raise AttributeError('missing string_connection')
         self._cache: SuperCache = None
-        if os.path.isdir(string_connection):
-            self._cache = FileCache(string_connection)
-        elif string_connection.startswith('redis:'):
-            self._cache = RedisCache(string_connection)
-        else:
-            raise AttributeError('bad string_connection')
+
+        schema = (string_connection+':').split(':')[0]
+
+        if schema not in self.CACHE_CLASSES:
+            raise CacheException(
+                'unexpected cache schema "{0}"'.format(schema))
+
+        self._cache = self.CACHE_CLASSES[schema](string_connection)
 
     def get_value(self, section: str, key: str, default=None) -> str:
         return self._cache.get_value(section, key, default)
