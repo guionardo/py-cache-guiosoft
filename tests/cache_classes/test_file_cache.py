@@ -9,7 +9,7 @@ from cache_gs.cache_classes.file_cache import FileCache
 class TestFileCache(unittest.TestCase):
 
     def setUp(self):
-        cache_folder = '.cache'
+        cache_folder = 'path://.cache'
         if not os.path.isdir((cache_folder)):
             os.makedirs(cache_folder)
 
