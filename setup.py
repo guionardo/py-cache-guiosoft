@@ -79,8 +79,7 @@ setup(
         ]
     },
     install_requires=[
-        "Faker",
-        "openpyxl"
+        "redis",        
     ],
     zip_safe=False,
     python_requires='>=3.6.*'
