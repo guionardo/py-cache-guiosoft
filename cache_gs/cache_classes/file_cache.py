@@ -11,7 +11,7 @@ from cache_gs.utils.timestamp import (base64_to_int, int_to_base64,
 class FileCache(SuperCache):
 
     def setup(self):
-        self._string_connection = os.path.abspath(self._string_connection)
+        self._string_connection = os.path.abspath(self._string_connection.split('://')[1])        
         if not os.path.isdir(self._string_connection):
             subpath = os.path.dirname(self._string_connection)
             if not os.path.isdir(subpath):
@@ -22,7 +22,7 @@ class FileCache(SuperCache):
 
     def _get_value(self, section, key, default=None):
         data = CacheData(section, key, None, 0)
-        filename = self._file_name(data)
+        filename = self._file_name(data, False)
         cdf = CacheDataFile()
         if cdf.load(filename):
             return cdf.data
@@ -35,9 +35,10 @@ class FileCache(SuperCache):
         return cdf.save(filename)
 
     def _delete_value(self, data):
-        filename = self._file_name(data)
+        filename = self._file_name(data, False)
         if os.path.isfile(filename):
             os.unlink(filename)
+        return not os.path.isfile(filename)
 
     def purge_expired(self):
         subfolders = [

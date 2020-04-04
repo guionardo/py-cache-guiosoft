@@ -10,7 +10,7 @@ class SQLiteCache(SuperCache):
 
     def setup(self):
         # expects a sqlite:path
-        file_path = os.path.abspath(self._string_connection.split(':')[1])
+        file_path = os.path.abspath(self._string_connection.split('://')[1])
 
         if os.path.isdir(file_path):
             file_path = os.path.join(file_path, 'cache.sqlite')

@@ -42,8 +42,8 @@ class CacheGS(SuperCache):
     }
 
     def __init__(self, string_connection: str):
-        if not isinstance(string_connection, str) or not string_connection:
-            raise AttributeError('missing string_connection')
+        string_connection = str(string_connection)
+
         self._cache: SuperCache = None
 
         schema = (string_connection+':').split(':')[0]
