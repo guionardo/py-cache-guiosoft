@@ -9,6 +9,9 @@ class TestSuperCache(unittest.TestCase):
         with self.assertRaises(Exception):
             SuperCache(None)
 
+        with self.assertRaises(Exception):
+            SuperCache('test')
+
     @patch("cache_gs.interfaces.super_cache.SuperCache.setup", Mock())
     def test_get_set_delete(self):
         sc = SuperCache('x')
@@ -40,7 +43,7 @@ class TestSuperCache(unittest.TestCase):
     def test_logs(self):
         SuperCache.log_debug('TEST DEBUG')
         SuperCache.log_info('TEST_INFO')
-
+    
 
 class MockData:
 
