@@ -20,8 +20,8 @@ class RedisCache(SuperCache):
     def _get_value(self, section: str, key: str, default=None) -> CacheData:
         value = self.redis.get(self.section_key(section, key))
         if value:
-            return CacheData(section, key, value, 0)
-        return None
+            return CacheData(section, key, value.decode(self.redis_setup.encoding), 0)
+        return CacheData(section, key, default, 0)
 
     def _set_value(self, data: CacheData) -> bool:
         if data.expires_in > 0:

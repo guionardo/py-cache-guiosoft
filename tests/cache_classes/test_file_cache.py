@@ -26,3 +26,7 @@ class TestFileCache(unittest.TestCase):
             'test', 'key', 'abcd', time.time()+1))
         time.sleep(1)
         self.assertTrue(self.file_cache.purge_expired() > 0)
+
+    def test_get_default(self):
+        self.assertEqual(self.file_cache.get_value(
+            'test', 'key_', 'abcd'), 'abcd')

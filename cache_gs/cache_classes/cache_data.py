@@ -8,7 +8,8 @@ class CacheData:
         section = '_' if not isinstance(
             section, str) or not section else section
         key = '_' if not isinstance(key, str) or not key else key
-        value = str(value)
+        if value is not None:
+            value = str(value)
         expires_in = 0 if not (isinstance(
             expires_in, int) or isinstance(expires_in, float)) or expires_in < 0 else expires_in
 
@@ -24,13 +25,16 @@ class CacheData:
             self._created = time()
 
     @property
-    def section(self) -> str: return self._section
+    def section(self) -> str:
+        return self._section
 
     @property
-    def key(self) -> str: return self._key
+    def key(self) -> str:
+        return self._key
 
     @property
-    def value(self) -> str: return self._value
+    def value(self) -> str:
+        return self._value
 
     @property
     def expires_in(self) -> int:
@@ -38,12 +42,22 @@ class CacheData:
         return self._expires_in
 
     @property
-    def expired(self) -> bool: return time() > self._expires_in > 0
+    def expired(self) -> bool:
+        return time() > self._expires_in > 0
 
     def __eq__(self, value):
         if isinstance(value, self.__class__):
             return self.section == value.section and \
-                self.key == value.key and \
-                self.value == value.value and \
-                self.expires_in == value.expires_in
+                   self.key == value.key and \
+                   self.value == value.value and \
+                   self.expires_in == value.expires_in
         return False
+
+    def __repr__(self):
+        return "CacheData('{section}','{key}','{value}',{expires_in}){expired}".format(
+            section=self.section,
+            key=self.key,
+            value=self.value,
+            expires_in=self.expires_in,
+            expired=' EXPIRED' if self.expired else ''
+        )
