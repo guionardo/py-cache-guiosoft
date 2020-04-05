@@ -1,4 +1,5 @@
 import os
+import time
 
 from cache_gs.cache_classes.file_cache import FileCache
 from cache_gs.cache_classes.redis_cache import RedisCache
@@ -41,9 +42,8 @@ class CacheGS(SuperCache):
         'sqlite': SQLiteCache
     }
 
-    def __init__(self, string_connection: str):
+    def __init__(self, string_connection: str):        
         string_connection = str(string_connection)
-
         self._cache: SuperCache = None
 
         schema = (string_connection+':').split(':')[0]
@@ -57,11 +57,16 @@ class CacheGS(SuperCache):
     def get_value(self, section: str, key: str, default=None) -> str:
         return self._cache.get_value(section, key, default)
 
-    def set_value(self, section: str, key: str, value: str, expires_in: int = 0) -> bool:
-        return self._cache.set_value(section, key, value, expires_in)
+    def set_value(self, section: str, key: str, value: str, valid_until: int = 0, expires_in: int = 0) -> bool:
+        if expires_in > 0:
+            valid_until = time.time()+expires_in
+
+        return self._cache.set_value(section, key, value, valid_until)
 
     def delete_value(self, section: str, key: str) -> bool:
+        """"Delete data from cache"""
         return self._cache.delete_value(section, key)
 
     def purge_expired(self):
+        """Forces removing expired data"""
         return self._cache.purge_expired()

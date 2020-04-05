@@ -33,7 +33,7 @@ def get_definitions(rel_path, *words):
 
 
 long_description = read('README.md')
-base_folder = 'cli'
+base_folder = 'cache_gs'
 packages = find_packages(where=base_folder)
 _version, _description, _author, _author_email = get_definitions(
     os.path.join(base_folder, '__init__.py'),
@@ -61,11 +61,11 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8"
     ],
-    url='https://github.com/guionardo/canaa-base-model-creator',
-    keywords='canaa hbsis',
+    url='https://github.com/guionardo/py-cache-guiosoft',
+    keywords='cache',
     project_urls={
-        "Documentation": "https://github.com/guionardo/canaa-base-model-creator/wiki",
-        "Source": "https://github.com/guionardo/canaa-base-model-creator",
+        "Documentation": "https://github.com/guionardo/py-cache-guiosoft/wiki",
+        "Source": "https://github.com/guionardo/py-cache-guiosoft",
     },
     author=_author,
     author_email=_author_email,
@@ -73,11 +73,7 @@ setup(
         where=".",
         exclude=["tests"],
     ),
-    entry_points={
-        "console_scripts": [
-            "canaa-model="+base_folder+".main:main"
-        ]
-    },
+
     install_requires=[
         "redis",        
     ],

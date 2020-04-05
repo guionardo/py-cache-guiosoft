@@ -11,6 +11,7 @@ class CacheDataFile:
 
     def __init__(self, filename: str = None, cache_data: CacheData = None):
         self._data: CacheData = cache_data
+        self._filename = filename
         if filename and os.path.isfile(filename):
             self.load(filename)
 
@@ -33,6 +34,7 @@ class CacheDataFile:
                 if success:
                     self._data = CacheData(
                         section, key, value, expires_in, created)
+                    self._filename = filename
                 else:
                     os.unlink(filename)
 
@@ -63,3 +65,9 @@ class CacheDataFile:
     @property
     def data(self):
         return self._data
+
+    def __repr__(self):
+        return "CacheDataFile('{filename}',{data})".format(
+            filename=self._filename,
+            data=self._data
+        )

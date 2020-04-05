@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from cache_gs.cache_classes.cache_data_file import CacheData, CacheDataFile
+from tests.test_tools import raise_test_exception
 
 
 class TestCacheDataFile(unittest.TestCase):
@@ -37,7 +38,7 @@ class TestCacheDataFile(unittest.TestCase):
         cdf = CacheDataFile()
         self.assertFalse(cdf.load('abcd'))
 
-    @patch("json.dumps", lambda **kwargs: 1/0)
+    @patch("json.dumps", lambda **kwargs: raise_test_exception())
     def test_save_exception(self):
         cdf = CacheDataFile()
         self.assertFalse(cdf.save('abcd'))

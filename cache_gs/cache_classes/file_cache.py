@@ -4,14 +4,14 @@ from glob import glob
 from cache_gs.cache_classes.cache_data import CacheData
 from cache_gs.cache_classes.cache_data_file import CacheDataFile
 from cache_gs.interfaces.super_cache import SuperCache
-from cache_gs.utils.timestamp import (base64_to_int, int_to_base64,
-                                      section_key_hash)
+from cache_gs.utils.timestamp import (section_key_hash)
 
 
 class FileCache(SuperCache):
 
     def setup(self):
-        self._string_connection = os.path.abspath(self._string_connection.split('://')[1])        
+        self._string_connection = os.path.abspath(
+            self._string_connection.split('://')[1])
         if not os.path.isdir(self._string_connection):
             subpath = os.path.dirname(self._string_connection)
             if not os.path.isdir(subpath):
@@ -20,14 +20,14 @@ class FileCache(SuperCache):
                 'Creating cache folder [%s]', self._string_connection)
             os.makedirs(self._string_connection)
 
-    def _get_value(self, section, key, default=None):
+    def _get_value(self, section, key, default=None) -> CacheData:
         data = CacheData(section, key, None, 0)
         filename = self._file_name(data, False)
         cdf = CacheDataFile()
         if cdf.load(filename):
             return cdf.data
 
-        return default
+        return CacheData(section, key, default, 0)
 
     def _set_value(self, data):
         filename = self._file_name(data, True)

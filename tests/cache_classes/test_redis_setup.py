@@ -13,6 +13,9 @@ class TestRedisSetup(unittest.TestCase):
 
         self.assertIsInstance(rs, RedisSetup)
 
+        rs = RedisSetup('redis://localhost:6379')
+        self.assertIsInstance(rs, RedisSetup)
+
     def test_init_error(self):
         with self.assertRaises(Exception):
             RedisSetup('')

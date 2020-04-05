@@ -83,6 +83,10 @@ class RedisSetup:
     def options(self):
         return self._options
 
+    @property
+    def encoding(self):
+        return self.options.get('encoding', 'utf-8')
+
 
 class RedisSetupException(Exception):
     pass

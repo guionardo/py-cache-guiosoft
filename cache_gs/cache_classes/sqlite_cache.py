@@ -37,8 +37,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_cache ON cache (section,key);
             c = self.conn.cursor()
             f = c.execute("SELECT value,expires_in FROM cache WHERE section=? and key=? and expires_in<strftime('%s','now')", [
                 section, key]).fetchone()
-            if f:
-                result = CacheData(section, key, f[0], f[1])
+            if not f:
+                f = [default, 0]
+            result = CacheData(section, key, f[0], f[1])
+
         except Exception as exc:
             self.log_error('ERROR ON FETCH CACHE: %s', str(exc))
 
