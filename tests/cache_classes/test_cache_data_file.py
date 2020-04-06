@@ -1,7 +1,5 @@
 import datetime
-import json
 import os
-import time
 import unittest
 from unittest.mock import Mock, patch
 
@@ -32,6 +30,16 @@ class TestCacheDataFile(unittest.TestCase):
 
         self.assertNotEqual(cd, None)
 
+    def test_cache_data(self):
+        cd = CacheData('sec', 'key', 'value', 0)
+        self.assertEqual(repr(cd), "CacheData('sec','key','value',0)")
+
+    def test_repr(self):
+        cd = CacheData('sec', 'key', 'value', 0)
+        cdf = CacheDataFile('test', cd)
+        self.assertEqual(
+            repr(cdf), "CacheDataFile('test',CacheData('sec','key','value',0))")
+
     @patch("os.path.isfile", Mock())
     def test_load_exception(self):
         os.path.isfile.return_value = True
@@ -40,5 +48,8 @@ class TestCacheDataFile(unittest.TestCase):
 
     @patch("json.dumps", lambda **kwargs: raise_test_exception())
     def test_save_exception(self):
-        cdf = CacheDataFile()
+        cd = CacheData("sec", "key", "value", 0)
+        cdf = CacheDataFile(cache_data=cd)
         self.assertFalse(cdf.save('abcd'))
+        if os.path.isfile('abcd'):
+            os.unlink('abcd')
