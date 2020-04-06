@@ -75,8 +75,8 @@ setup(
     ),
 
     install_requires=[
-        "redis",        
+        "redis",
     ],
-    zip_safe=False,
+    zip_safe=True,
     python_requires='>=3.6.*'
 )

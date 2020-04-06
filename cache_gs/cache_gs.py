@@ -59,7 +59,7 @@ class CacheGS(SuperCache):
 
     def set_value(self, section: str, key: str, value: str, valid_until: int = 0, expires_in: int = 0) -> bool:
         if expires_in > 0:
-            valid_until = time.time()+expires_in
+            valid_until = int(time.time())+expires_in
 
         return self._cache.set_value(section, key, value, valid_until)
 
