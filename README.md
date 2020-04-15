@@ -4,13 +4,13 @@ Caching data using files, Redis or local SQLite
 
 
 [![codecov](https://codecov.io/gh/guionardo/py-cache-guiosoft/branch/develop/graph/badge.svg)](https://codecov.io/gh/guionardo/py-cache-guiosoft)
+![Codecov push](https://github.com/guionardo/py-cache-guiosoft/workflows/Codecov%20push/badge.svg)
 
 
 
 [![codecov](https://codecov.io/gh/guionardo/py-cache-guiosoft/branch/develop/graphs/commits.svg)]
 
 ![Upload Python Package](https://github.com/guionardo/py-cache-guiosoft/workflows/Upload%20Python%20Package/badge.svg)
-
 
 ## Local files for caching
 
