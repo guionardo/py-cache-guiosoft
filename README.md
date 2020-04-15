@@ -12,6 +12,7 @@ Caching data using files, Redis or local SQLite
 ![Upload Python Package](https://github.com/guionardo/py-cache-guiosof/workflows/Upload%20Python%20Package/badge.svg)
 
 
+
 ## Local files for caching
 
 ``` python

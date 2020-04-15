@@ -46,7 +46,7 @@ class TestCacheDataFile(unittest.TestCase):
         cdf = CacheDataFile()
         self.assertFalse(cdf.load('abcd'))
 
-    @patch("json.dumps", lambda **kwargs: raise_test_exception())
+    @patch("json.dumps", lambda *args, **kwargs: raise_test_exception())
     def test_save_exception(self):
         cd = CacheData("sec", "key", "value", 0)
         cdf = CacheDataFile(cache_data=cd)

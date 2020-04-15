@@ -12,6 +12,7 @@ class CacheDataFile:
     def __init__(self, filename: str = None, cache_data: CacheData = None):
         self._data: CacheData = cache_data
         self._filename = filename
+        self.log = get_logger()
         if filename and os.path.isfile(filename):
             self.load(filename)
 
@@ -39,7 +40,7 @@ class CacheDataFile:
                     os.unlink(filename)
 
             except Exception as exc:
-                get_logger().error('EXCEPTION ON LOADING CACHE FILE: %s', str(exc))
+                self.log.error('EXCEPTION ON LOADING CACHE FILE: %s', str(exc))
 
         return success
 
@@ -58,7 +59,7 @@ class CacheDataFile:
 
             success = os.path.isfile(filename)
         except Exception as exc:
-            get_logger().error('EXCEPTION ON SAVING CACHE FILE: %s', str(exc))
+            self.log.error('EXCEPTION ON SAVING CACHE FILE: %s', str(exc))
 
         return success
 
