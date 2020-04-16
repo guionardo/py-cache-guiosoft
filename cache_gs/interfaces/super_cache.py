@@ -1,10 +1,8 @@
-from hashlib import sha1
-
 from cache_gs.cache_classes.cache_data import CacheData
 from cache_gs.utils.logging import get_logger
 
 
-class SuperCache:   
+class SuperCache:
 
     def __init__(self, string_connection: str, **extra_args):
         if not isinstance(string_connection, str) or not string_connection:
@@ -33,8 +31,9 @@ class SuperCache:
 
         return data.value
 
-    def set_value(self, section: str, key: str, value: str, expires_in: int = 0) -> bool:
-        data = CacheData(section, key, value, expires_in)
+    def set_value(self, section: str, key: str,
+                  value: str, ttl: int = 0) -> bool:
+        data = CacheData(section, key, value, ttl)
         return self._set_value(data)
 
     def delete_value(self, section: str, key: str) -> bool:

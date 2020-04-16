@@ -2,11 +2,36 @@ import os
 import sqlite3
 
 from cache_gs.cache_classes.cache_data import CacheData
-from cache_gs.interfaces.super_cache import CacheException, SuperCache
+from cache_gs.interfaces.super_cache import SuperCache
+
+DELETE_EXPIRED = """
+DELETE FROM cache
+WHERE valid_until BETWEEN 1 and strftime('%s','now');"""
+
+CREATE_DB = """
+PRAGMA auto_vacuum = 1;
+PRAGMA journal_mode = WAL;
+CREATE TABLE IF NOT EXISTS
+    cache(section text, key text, value text, valid_until float);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_cache ON cache(section, key);
+"""+DELETE_EXPIRED
+
+SELECT_GET = """
+SELECT value, valid_until
+FROM cache
+WHERE section =?
+and key =?
+and (valid_until=0 or valid_until > strftime('%s', 'now'))"""
+
+INSERT = """
+INSERT OR REPLACE INTO cache
+(section,key,value,valid_until)
+values (?,?,?,?)"""
+
+DELETE = "DELETE FROM cache WHERE section=? and key=?"
 
 
 class SQLiteCache(SuperCache):
-    DELETE_EXPIRED = "DELETE FROM cache WHERE expires_in>0 and expires_in<strftime('%s','now');"
 
     def setup(self):
         # expects a sqlite:path
@@ -19,12 +44,7 @@ class SQLiteCache(SuperCache):
             self.log_debug('SQLite cache: %s', file_path)
             self.conn = sqlite3.connect(file_path)
             c = self.conn.cursor()
-            c.executescript("""
-PRAGMA auto_vacuum = 1;
-PRAGMA journal_mode = WAL;
-CREATE TABLE IF NOT EXISTS cache (section text, key text, value text, expires_in int);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_cache ON cache (section,key);
-"""+self.DELETE_EXPIRED)
+            c.executescript(CREATE_DB)
             self.conn.commit()
         except Exception as exc:
             self.log_error('ERROR ON CONNECT TO SQLITE CACHE: %s', str(exc))
@@ -35,8 +55,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_cache ON cache (section,key);
 
         try:
             c = self.conn.cursor()
-            f = c.execute("SELECT value,expires_in FROM cache WHERE section=? and key=? and (expires_in=0 or expires_in>strftime('%s','now'))", [
-                section, key]).fetchone()
+            f = c.execute(SELECT_GET, [section, key]).fetchone()
             if not f:
                 f = [default, 0]
             result = CacheData(section, key, f[0], f[1])
@@ -50,17 +69,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_cache ON cache (section,key);
         success = False
         try:
             c = self.conn.cursor()
-            exc = c.execute("INSERT OR REPLACE INTO cache (section,key,value,expires_in) values (?,?,?,?)",
+            exc = c.execute(INSERT,
                             [data.section,
                              data.key,
                              data.value,
-                             data.expires_in])
+                             data.valid_until])
             if c.rowcount > 0:
                 self.conn.commit()
                 success = True
             c.close()
         except Exception as exc:
-            self.log_error('ERROR ON SET CACHE: %s', str(exc))
+            self.log_error('ERROR ON SET CACHE: %s', exc)
 
         return success
 
@@ -68,7 +87,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_cache ON cache (section,key);
         success = False
         try:
             c = self.conn.cursor()
-            c.execute("DELETE FROM cache WHERE section=? and key=?",
+            c.execute(DELETE,
                       [data.section, data.key])
             if c.rowcount > 0:
                 self.conn.commit()
@@ -84,10 +103,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_cache ON cache (section,key);
         deleted = 0
         try:
             c = self.conn.cursor()
-            c.execute(self.DELETE_EXPIRED)
+            c.execute(DELETE_EXPIRED)
             if c.rowcount > 0:
                 self.conn.commit()
                 deleted = c.rowcount
+            else:
+                self.conn.rollback()
+            c.close()
         except Exception as exc:
             self.log_error('ERROR ON PURGE EXPIRED CACHE: %s', str(exc))
 

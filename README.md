@@ -27,7 +27,9 @@ slite_cache = CacheGS('sqlite://directory_or_file_for_storage')
 
 # Storage on Redis
 
-redis_cache = CacheGS('redis://host:6379?arg=value&arg2=value2')
+redis_cache = CacheGS('redis://host:6379')
+
+[More options for redis](#Redis options and example)
 
 ```
 
@@ -38,10 +40,9 @@ Like INI files, data is grouped in section/key names.
 ### Writing value
 
 ``` python
-cache.set_value(section, key, value, valid_until: int = 0, expires_in: int = 0)
+cache.set_value(section, key, value, ttl: int = 0)
 
-# valid_until is a real timestamp 
-# expires_in is the life time of value in seconds from the time is created
+# ttl is the life time of value in seconds from the time is created
 ```
 
 ### Reading value
@@ -60,10 +61,57 @@ cache.delete_value(section, key)
 
 * On *Redis* cache, this is handled by the server, automatically.
 * On *SQLite* cache, purging is executing on every instantiation.
-* On *Local File* cache, purgin is automatically executed once a day, checked on every instantiation.
+* On *Local File* cache, purging is automatically executed once a day, checked on every instantiation.
 
 ### Force purging expired data
 
 ``` python
 cache.purge_expired()
+```
+
+### Redis options and example
+
+Redis connection uses the [redis-py component](https://github.com/andymccurdy/redis-py) from Andy McCurdy.
+You can use the same connection strings that the Redis class uses:
+
+* redis://[[username]:[password]]@localhost:6379/0
+* rediss://[[username]:[password]]@localhost:6379/0
+* unix://[[username]:[password]]@/path/to/socket.sock?db=0
+
+        Three URL schemes are supported:
+
+        - ```redis://``
+          <http://www.iana.org/assignments/uri-schemes/prov/redis>`_ creates a
+          normal TCP socket connection
+        - ```rediss://``
+          <http://www.iana.org/assignments/uri-schemes/prov/rediss>`_ creates a
+          SSL wrapped TCP socket connection
+        - ``unix://`` creates a Unix Domain Socket connection
+
+        There are several ways to specify a database number. The parse function
+        will return the first specified option:
+            1. A ``db`` querystring option, e.g. redis://localhost?db=0
+            2. If using the redis:// scheme, the path argument of the url, e.g.
+               redis://localhost/0
+            3. The ``db`` argument to this function.
+
+        If none of these options are specified, db=0 is used.
+
+### Redis on docker
+
+docker-compose.yaml
+
+``` yaml
+redis:
+    container_name: 'redis'
+    image: 'redis:4-alpine'
+    command: redis-server --requirepass 1234
+    ports:
+        - '6379:6379'
+```
+
+For testing, just run:
+
+``` bash
+docker-compose up
 ```

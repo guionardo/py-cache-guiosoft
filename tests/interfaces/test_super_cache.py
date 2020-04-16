@@ -43,7 +43,7 @@ class TestSuperCache(unittest.TestCase):
     def test_logs(self):
         SuperCache.log_debug('TEST DEBUG')
         SuperCache.log_info('TEST_INFO')
-    
+
 
 class MockData:
 
