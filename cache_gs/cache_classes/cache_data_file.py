@@ -4,7 +4,6 @@ import time
 
 from cache_gs.cache_classes.cache_data import CacheData
 from cache_gs.utils.logging import get_logger
-from cache_gs.utils.types import str_to_type, type_to_str
 
 
 class CacheDataFile:
@@ -27,15 +26,15 @@ class CacheDataFile:
                 section = json_data.get('section', None)
                 key = json_data.get('key', None)
                 value = json_data.get('value', None)
-                expires_in = json_data.get('expires_in', 0)
+                ttl = json_data.get('ttl', 0)
                 created = json_data.get('created', time.time())
-
+                valid_until = 0 if ttl == 0 else created+ttl
                 success = section and key and (
-                    expires_in <= 0 or expires_in >= time.time())
+                    valid_until == 0 or valid_until >= time.time())
 
                 if success:
                     self._data = CacheData(
-                        section, key, value, expires_in, created)
+                        section, key, value, ttl, created)
                     self._filename = filename
                 else:
                     os.unlink(filename)
@@ -52,8 +51,8 @@ class CacheDataFile:
                 "section": self._data.section,
                 "key": self._data.key,
                 "value": self._data.value,
-                "expires_in": self._data.expires_in,
-                "created": time.time()
+                "ttl": self._data.ttl,
+                "created": time.time() if self._data._created == 0 else self._data._created
             }
             with open(filename, 'w', encoding='ascii') as f:
                 f.write(json.dumps(data, ensure_ascii=True, default=str))

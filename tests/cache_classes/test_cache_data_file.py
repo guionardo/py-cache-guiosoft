@@ -1,4 +1,3 @@
-import datetime
 import os
 import unittest
 from unittest.mock import Mock, patch
@@ -24,21 +23,12 @@ class TestCacheDataFile(unittest.TestCase):
         cdf2 = CacheDataFile(self.file_name)
         self.assertEqual(cdf.data, cdf2.data)
 
-        cd2 = CacheData("test_section", "test_key",
-                        "test_value_", 0, datetime.datetime.now())
-        self.assertNotEqual(cd, cd2)
-
-        self.assertNotEqual(cd, None)
-
-    def test_cache_data(self):
-        cd = CacheData('sec', 'key', 'value', 0)
-        self.assertEqual(repr(cd), "CacheData('sec','key','value',0)")
-
     def test_repr(self):
         cd = CacheData('sec', 'key', 'value', 0)
         cdf = CacheDataFile('test', cd)
         self.assertEqual(
-            repr(cdf), "CacheDataFile('test',CacheData('sec','key','value',0))")
+            repr(cdf),
+            "CacheDataFile('test',CacheData('sec','key','value',0))")
 
     @patch("os.path.isfile", Mock())
     def test_load_exception(self):

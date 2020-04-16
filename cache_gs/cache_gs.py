@@ -1,6 +1,3 @@
-import os
-import time
-
 from cache_gs.cache_classes.file_cache import FileCache
 from cache_gs.cache_classes.redis_cache import RedisCache
 from cache_gs.cache_classes.sqlite_cache import SQLiteCache
@@ -21,28 +18,22 @@ class CacheGS(SuperCache):
 
     Using redis:
 
-    cache = CacheGS('redis://host:6379?arg=value&arg2=value2')
+    cache = CacheGS('redis://host:6379')
 
-    args: 
-        username
-        password
-        client_name
-        encoding
-        encoding_errors
-        charset
-        db
-        health_check_interval
-
-        More informations on args for redis: https://github.com/andymccurdy/redis-py
+    * redis://[[username]:[password]]@localhost:6379/0
+    * rediss://[[username]:[password]]@localhost:6379/0
+    * unix://[[username]:[password]]@/path/to/socket.sock?db=0
     """
 
     CACHE_CLASSES = {
         'path': FileCache,
         'redis': RedisCache,
+        'rediss': RedisCache,
+        'unix': RedisCache,
         'sqlite': SQLiteCache
     }
 
-    def __init__(self, string_connection: str):        
+    def __init__(self, string_connection: str):
         string_connection = str(string_connection)
         self._cache: SuperCache = None
 
@@ -55,13 +46,19 @@ class CacheGS(SuperCache):
         self._cache = self.CACHE_CLASSES[schema](string_connection)
 
     def get_value(self, section: str, key: str, default=None) -> str:
+        """Get the value from cache or a default value if not found
+
+        :param section: str
+        :param key: str
+        :param default: str
+        :return str
+        """
         return self._cache.get_value(section, key, default)
 
-    def set_value(self, section: str, key: str, value: str, valid_until: int = 0, expires_in: int = 0) -> bool:
-        if expires_in > 0:
-            valid_until = int(time.time())+expires_in
+    def set_value(self, section: str, key: str, value: str,
+                  ttl: int = 0) -> bool:
 
-        return self._cache.set_value(section, key, value, valid_until)
+        return self._cache.set_value(section, key, value, ttl)
 
     def delete_value(self, section: str, key: str) -> bool:
         """"Delete data from cache"""

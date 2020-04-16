@@ -1,4 +1,5 @@
 import os
+import time
 import unittest
 
 from cache_gs import CacheGS
@@ -25,7 +26,8 @@ class TestRealFileCache(unittest.TestCase):
         self.assertTrue(self.cache.delete_value('sec', 'key'))
 
     def test_purge(self):
-        self.assertTrue(self.cache.set_value('sec', 'key', '1234', 100))
+        self.assertTrue(self.cache.set_value('sec', 'key', '1234', 0.1))
+        time.sleep(0.2)
         self.assertGreater(self.cache.purge_expired(), 0)
 
     def test_exception_on_purge(self):

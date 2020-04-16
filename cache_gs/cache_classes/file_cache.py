@@ -5,7 +5,7 @@ from time import time
 from cache_gs.cache_classes.cache_data import CacheData
 from cache_gs.cache_classes.cache_data_file import CacheDataFile
 from cache_gs.interfaces.super_cache import SuperCache
-from cache_gs.utils.timestamp import (section_key_hash)
+from cache_gs.utils.timestamp import section_key_hash
 
 
 class FileCache(SuperCache):
@@ -63,20 +63,21 @@ class FileCache(SuperCache):
                 expired_count += self._purge_expired_folder(subsubfolder)
 
             self._remove_empty_folder(subfolder)
-        self.set_value(self.CACHE_SECTION, self.LAST_PURGE, str(time()))
+        self.set_value(self.CACHE_SECTION, self.LAST_PURGE, str(int(time())))
         return expired_count
 
     def _check_need_purge(self) -> bool:
         """ Returns True if last purge occurred more than one day ago """
-        try:
-            last_purge = int(
-                self.get_value(
-                    section=self.CACHE_SECTION,
-                    key=self.LAST_PURGE,
-                    default='0'))
-        except:
+        last_purge = self.get_value(
+            section=self.CACHE_SECTION,
+            key=self.LAST_PURGE,
+            default='0'
+        )
+        if not last_purge.isnumeric():
             self.set_value(self.CACHE_SECTION, self.LAST_PURGE, '0')
             last_purge = 0
+        else:
+            last_purge = int(last_purge)
 
         return last_purge < time()-86400
 

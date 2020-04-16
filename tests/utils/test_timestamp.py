@@ -1,5 +1,7 @@
 import unittest
-from cache_gs.utils.timestamp import base64_to_int, int_to_base64, section_key_hash
+
+from cache_gs.utils.timestamp import (base64_to_int, int_to_base64,
+                                      section_key_hash)
 
 
 class TestTimeStamp(unittest.TestCase):
@@ -12,11 +14,11 @@ class TestTimeStamp(unittest.TestCase):
 
     def test_lenght(self):
         i = 1
-        l = len(int_to_base64(0))
+        len_base64 = len(int_to_base64(0))
         igual = True
         last = 2**32
         while i <= last and igual:
-            igual = len(int_to_base64(i)) == l
+            igual = len(int_to_base64(i)) == len_base64
             i *= 2
 
         self.assertTrue(igual)

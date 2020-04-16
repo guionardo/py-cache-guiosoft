@@ -1,9 +1,6 @@
-from time import time
-
 from redis import Redis
 
 from cache_gs.cache_classes.cache_data import CacheData
-from cache_gs.cache_classes.redis_setup import RedisSetup
 from cache_gs.interfaces.super_cache import SuperCache
 
 
@@ -14,31 +11,39 @@ class RedisCache(SuperCache):
     """
 
     def setup(self):
-        self.redis_setup: RedisSetup = RedisSetup(self._string_connection)
-        self.redis: Redis = Redis(**self.redis_setup.options)
+        self.redis: Redis = Redis.from_url(self._string_connection)
+        self.redis.memory_purge()
 
     def _get_value(self, section: str, key: str, default=None) -> CacheData:
-        value = self.redis.get(self.section_key(section, key))
+        try:
+            value = self.redis.get(self.section_key(section, key))
+        except Exception as exc:
+            self.log_error('GSCache REDIS GET ERROR: %s', exc)
+            value = None
         if value:
-            return CacheData(section, key, value.decode(self.redis_setup.encoding), 0)
+            return CacheData(section, key, value.decode('utf-8'), 0)
         return CacheData(section, key, default, 0)
 
     def _set_value(self, data: CacheData) -> bool:
-        if data.expires_in > 0:
-            if data.expires_in > time():
-                self.redis.set(self.section_key(data.section, data.key), data.value,
-                               ex=time()-data.expires_in)
-                return True
-        else:
-            self.redis.set(self.section_key(
-                data.section, data.key), data.value)
+        try:
+            self.redis.set(
+                key=self.section_key(data.section, data.key),
+                value=data.value,
+                ex=data.ttl if data.ttl > 0 else None)
             return True
+
+        except Exception as exc:
+            self.log_error('GSCache REDIS SET ERROR: %s', exc)
 
         return False
 
     def _delete_value(self, data: CacheData) -> bool:
-        self.redis.delete(self.section_key(data.section, data.key))
-        return True
+        try:
+            self.redis.delete(self.section_key(data.section, data.key))
+            return True
+        except Exception as exc:
+            self.log_error('GSCache REDIS DELETE ERROR: %s', exc)
+        return False
 
     def purge_expired(self) -> int:
         return 0
