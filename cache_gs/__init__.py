@@ -1,4 +1,4 @@
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 __description__ = ''
 __author__ = 'Guionardo Furlan'
 __author_email__ = 'guionardo@gmail.com'
