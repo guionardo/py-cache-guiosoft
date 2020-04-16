@@ -37,6 +37,12 @@ redis_cache = CacheGS('redis://host:6379')
 
 Like INI files, data is grouped in section/key names.
 
+### Installing
+
+``` bash
+pip install cache-guiosoft
+```
+
 ### Writing value
 
 ``` python
