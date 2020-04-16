@@ -4,7 +4,8 @@ from cache_gs.cache_classes.cache_data import CacheData
 from cache_gs.utils.logging import get_logger
 
 
-class SuperCache:
+class SuperCache:   
+
     def __init__(self, string_connection: str, **extra_args):
         if not isinstance(string_connection, str) or not string_connection:
             raise AttributeError(

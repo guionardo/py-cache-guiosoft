@@ -1,5 +1,6 @@
 import os
 from glob import glob
+from time import time
 
 from cache_gs.cache_classes.cache_data import CacheData
 from cache_gs.cache_classes.cache_data_file import CacheDataFile
@@ -8,6 +9,9 @@ from cache_gs.utils.timestamp import (section_key_hash)
 
 
 class FileCache(SuperCache):
+
+    CACHE_SECTION = '__file_cache'
+    LAST_PURGE = '__last_purge'
 
     def setup(self):
         self._string_connection = os.path.abspath(
@@ -19,6 +23,9 @@ class FileCache(SuperCache):
             self.log_info(
                 'Creating cache folder [%s]', self._string_connection)
             os.makedirs(self._string_connection)
+
+        if self._check_need_purge():
+            self.purge_expired()
 
     def _get_value(self, section, key, default=None) -> CacheData:
         data = CacheData(section, key, None, 0)
@@ -56,8 +63,22 @@ class FileCache(SuperCache):
                 expired_count += self._purge_expired_folder(subsubfolder)
 
             self._remove_empty_folder(subfolder)
-
+        self.set_value(self.CACHE_SECTION, self.LAST_PURGE, str(time()))
         return expired_count
+
+    def _check_need_purge(self) -> bool:
+        """ Returns True if last purge occurred more than one day ago """
+        try:
+            last_purge = int(
+                self.get_value(
+                    section=self.CACHE_SECTION,
+                    key=self.LAST_PURGE,
+                    default='0'))
+        except:
+            self.set_value(self.CACHE_SECTION, self.LAST_PURGE, '0')
+            last_purge = 0
+
+        return last_purge < time()-86400
 
     def _purge_expired_folder(self, folder):
         cache_files = [

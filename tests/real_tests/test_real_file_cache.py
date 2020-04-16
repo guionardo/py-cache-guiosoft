@@ -2,6 +2,7 @@ import os
 import unittest
 
 from cache_gs import CacheGS
+from cache_gs.cache_classes.file_cache import FileCache
 from cache_gs.utils.filesystem import remove_tree
 
 
@@ -26,3 +27,11 @@ class TestRealFileCache(unittest.TestCase):
     def test_purge(self):
         self.assertTrue(self.cache.set_value('sec', 'key', '1234', 100))
         self.assertGreater(self.cache.purge_expired(), 0)
+
+    def test_exception_on_purge(self):
+        self.cache.set_value(section=FileCache.CACHE_SECTION,
+                             key=FileCache.LAST_PURGE,
+                             value='error')
+
+        cache = CacheGS('path://'+self.cache_path)
+        self.assertIsInstance(cache, CacheGS)
