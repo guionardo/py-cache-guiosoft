@@ -56,6 +56,12 @@ value = cache.get_value(section, key, default=None)
 cache.delete_value(section, key)
 ```
 
+### Purging expired data
+
+* On *Redis* cache, this is handled by the server, automatically.
+* On *SQLite* cache, purging is executing on every instantiation.
+* On *Local File* cache, purgin is automatically executed once a day, checked on every instantiation.
+
 ### Force purging expired data
 
 ``` python

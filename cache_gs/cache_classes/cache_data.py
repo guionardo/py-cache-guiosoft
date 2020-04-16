@@ -3,6 +3,7 @@ from time import time
 
 
 class CacheData:
+    __slots__ = '_section', '_key', '_value', '_expires_in', '_created'
 
     def __init__(self, section: str, key: str, value: str, expires_in: int, created: int = 0):
         section = '_' if not isinstance(
@@ -48,9 +49,9 @@ class CacheData:
     def __eq__(self, value):
         if isinstance(value, self.__class__):
             return self.section == value.section and \
-                   self.key == value.key and \
-                   self.value == value.value and \
-                   self.expires_in == value.expires_in
+                self.key == value.key and \
+                self.value == value.value and \
+                self.expires_in == value.expires_in
         return False
 
     def __repr__(self):

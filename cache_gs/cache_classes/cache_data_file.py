@@ -8,6 +8,7 @@ from cache_gs.utils.types import str_to_type, type_to_str
 
 
 class CacheDataFile:
+    __slots__ = '_data', '_filename', 'log'
 
     def __init__(self, filename: str = None, cache_data: CacheData = None):
         self._data: CacheData = cache_data
