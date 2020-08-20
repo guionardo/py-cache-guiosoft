@@ -36,7 +36,8 @@ class MemoryCache(SuperCache):
     def purge_expired(self) -> int:
         removed = 0
         for section in self._data:
-            for key in self._data[section].keys():
+            keys = [key for key in self._data[section].keys()]
+            for key in keys:
                 if self._data[section][key].expired:
                     del(self._data[section][key])
                     removed += 1
