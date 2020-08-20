@@ -58,7 +58,7 @@ class SQLiteCache(SuperCache):
             f = c.execute(SELECT_GET, [section, key]).fetchone()
             if not f:
                 f = [default, 0]
-            result = CacheData(section, key, f[0], f[1])
+            result = CacheData(section, key, f[0], f[1], data_serialized=True)
 
         except Exception as exc:
             self.log_error('ERROR ON FETCH CACHE: %s', str(exc))
@@ -72,7 +72,7 @@ class SQLiteCache(SuperCache):
             exc = c.execute(INSERT,
                             [data.section,
                              data.key,
-                             data.value,
+                             data.serialized,
                              data.valid_until])
             if c.rowcount > 0:
                 self.conn.commit()

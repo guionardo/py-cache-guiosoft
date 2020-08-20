@@ -3,6 +3,7 @@ from time import time
 from unittest.mock import Mock, patch
 
 from cache_gs.cache_classes.redis_cache import RedisCache
+from cache_gs.interfaces.serialization import serialize
 from tests.test_tools import raise_test_exception
 
 
@@ -21,7 +22,7 @@ class TestRedisCache(unittest.TestCase):
     @patch("redis.Redis.from_url", Mock())
     def test_get_set(self):
         rc = RedisCache(self.STRING_CONNECTION)
-        rc.redis.get = lambda *args: b"abc"
+        rc.redis.get = lambda *args: serialize("abc").encode('utf-8')
         self.assertEqual(rc.get_value("sec", "key"), "abc")
         rc.redis.get = lambda *args: None
         self.assertIsNone(rc.get_value("sec", "key"))

@@ -34,7 +34,7 @@ class CacheDataFile:
 
                 if success:
                     self._data = CacheData(
-                        section, key, value, ttl, created)
+                        section, key, value, ttl, created, True)
                     self._filename = filename
                 else:
                     os.unlink(filename)
@@ -47,12 +47,15 @@ class CacheDataFile:
     def save(self, filename) -> bool:
         success = False
         try:
+
             data = {
                 "section": self._data.section,
                 "key": self._data.key,
-                "value": self._data.value,
+                "value": self._data.serialized,
                 "ttl": self._data.ttl,
-                "created": time.time() if self._data._created == 0 else self._data._created
+                "created": time.time()
+                if self._data._created == 0
+                else self._data._created
             }
             with open(filename, 'w', encoding='ascii') as f:
                 f.write(json.dumps(data, ensure_ascii=True, default=str))

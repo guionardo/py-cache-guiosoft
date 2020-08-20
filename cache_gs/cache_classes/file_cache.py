@@ -28,7 +28,7 @@ class FileCache(SuperCache):
             self.purge_expired()
 
     def _get_value(self, section, key, default=None) -> CacheData:
-        data = CacheData(section, key, None, 0)
+        data = CacheData(section, key, None, 0, data_serialized=True)
         filename = self._file_name(data, False)
         cdf = CacheDataFile()
         if cdf.load(filename):

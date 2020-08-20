@@ -2,11 +2,16 @@ from cache_gs.cache_classes.file_cache import FileCache
 from cache_gs.cache_classes.redis_cache import RedisCache
 from cache_gs.cache_classes.sqlite_cache import SQLiteCache
 from cache_gs.interfaces.super_cache import CacheException, SuperCache
+from cache_gs.cache_classes.memory_cache import MemoryCache
 
 
 class CacheGS(SuperCache):
     """
     Create your cache of section, key, values
+
+    Using Memory:
+
+    cache = CacheGS('memory://')
 
     Using filesystem:
 
@@ -23,6 +28,7 @@ class CacheGS(SuperCache):
     * redis://[[username]:[password]]@localhost:6379/0
     * rediss://[[username]:[password]]@localhost:6379/0
     * unix://[[username]:[password]]@/path/to/socket.sock?db=0
+
     """
 
     CACHE_CLASSES = {
@@ -30,7 +36,8 @@ class CacheGS(SuperCache):
         'redis': RedisCache,
         'rediss': RedisCache,
         'unix': RedisCache,
-        'sqlite': SQLiteCache
+        'sqlite': SQLiteCache,
+        'memory': MemoryCache
     }
 
     def __init__(self, string_connection: str):
