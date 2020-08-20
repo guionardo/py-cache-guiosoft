@@ -21,14 +21,15 @@ class RedisCache(SuperCache):
             self.log_error('GSCache REDIS GET ERROR: %s', exc)
             value = None
         if value:
-            return CacheData(section, key, value.decode('utf-8'), 0)
+            return CacheData(section, key, value.decode('utf-8'),
+                             0, data_serialized=True)
         return CacheData(section, key, default, 0)
 
     def _set_value(self, data: CacheData) -> bool:
         try:
             self.redis.set(
                 key=self.section_key(data.section, data.key),
-                value=data.value,
+                value=data.serialized,
                 ex=data.ttl if data.ttl > 0 else None)
             return True
 

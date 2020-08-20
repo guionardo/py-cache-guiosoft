@@ -6,6 +6,10 @@ from cache_gs.cache_classes.cache_data_file import CacheData, CacheDataFile
 from tests.test_tools import raise_test_exception
 
 
+def force_exception(*args, **kwargs):
+    raise_test_exception()
+
+
 class TestCacheDataFile(unittest.TestCase):
 
     def setUp(self):
@@ -36,7 +40,7 @@ class TestCacheDataFile(unittest.TestCase):
         cdf = CacheDataFile()
         self.assertFalse(cdf.load('abcd'))
 
-    @patch("json.dumps", lambda *args, **kwargs: raise_test_exception())
+    @patch("json.dumps", force_exception)
     def test_save_exception(self):
         cd = CacheData("sec", "key", "value", 0)
         cdf = CacheDataFile(cache_data=cd)

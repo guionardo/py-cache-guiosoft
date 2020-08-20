@@ -1,21 +1,32 @@
 from time import time
 
-from cache_gs.utils.types import is_numeric, default_to
+from cache_gs.interfaces.serialization import deserialize, serialize
+from cache_gs.utils.types import default_to, is_numeric
 
 
 class CacheData:
-    __slots__ = '_section', '_key', '_value', '_ttl', '_created'
+    __slots__ = ['_section', '_key', '_value',
+                 '_ttl', '_created', '_serialized_value']
 
     def __init__(self, section: str, key: str,
-                 value: str, ttl: int, created: float = 0):
+                 value: str, ttl: int, created: float = 0,
+                 data_serialized: bool = False):
         section = default_to(section)
         key = default_to(key)
-        if value is not None:
-            value = str(value)
 
         self._section = section
         self._key = key
-        self._value = value
+
+        if value is None:
+            data_serialized = False
+
+        if data_serialized:
+            self._serialized_value = value
+            self._value = deserialize(value)
+        else:
+            self._value = value
+            self._serialized_value = None
+
         self._ttl = 0 if not is_numeric(ttl) or ttl < 0 else ttl
         self._created = created if is_numeric(
             created) and created > 0 else time()
@@ -31,6 +42,12 @@ class CacheData:
     @property
     def value(self) -> str:
         return self._value
+
+    @property
+    def serialized(self) -> str:
+        if not self._serialized_value:
+            self._serialized_value = serialize(self._value)
+        return self._serialized_value
 
     @property
     def ttl(self) -> int:
