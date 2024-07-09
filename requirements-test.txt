@@ -3,3 +3,4 @@ pytest-cov==2.8.1
 autopep8==1.5
 bleach==3.1.4
 redis==3.4.1
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
